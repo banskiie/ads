@@ -11,7 +11,7 @@
       "visible": "leanback",
       "backgroundColor": "#000000"
     },
-    "icon": "./assets/images/default.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
