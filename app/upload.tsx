@@ -182,10 +182,31 @@ const Upload = () => {
       </View>
       <View style={{ width: "85%", height: "85%" }}>
         <View style={styles.header}>
-          <NativeImage
-            source={require("../assets/images/logo.png")}
-            style={{ height: "100%", objectFit: "contain", marginRight: "-4%" }}
-          />
+          <View>
+            <Text
+              style={{
+                paddingHorizontal: 10,
+                fontWeight: "bold",
+                fontSize: 12,
+                color: "white",
+                textTransform: "uppercase",
+              }}
+            >
+              Want to advertise?
+            </Text>
+            <Text
+              style={{
+                color: "white",
+                textTransform: "uppercase",
+                paddingHorizontal: 10,
+                fontSize: 19,
+                marginTop: -5,
+                fontWeight: "bold",
+              }}
+            >
+              09176292457
+            </Text>
+          </View>
           <View
             style={{
               position: "absolute",
@@ -248,9 +269,10 @@ const styles = StyleSheet.create({
   header: {
     height: "8%",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingVertical: 10,
     backgroundColor: "black",
+    flexDirection: "row",
   },
   upper: {
     height: "77%",

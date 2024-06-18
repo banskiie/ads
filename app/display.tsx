@@ -1,28 +1,86 @@
 import { Image as ExpoImage } from "expo-image"
-import { Image as NativeImage } from "react-native"
 import { StyleSheet, View, Pressable, Text } from "react-native"
 import { useImageStore } from "@/store/images"
-import { router } from "expo-router"
+import { router, useFocusEffect } from "expo-router"
 import { Media } from "@/store/images"
 import { ResizeMode, Video } from "expo-av"
 import Clock from "react-live-clock"
 import { StatusBar } from "expo-status-bar"
+import { useCallback, useState } from "react"
+import { Ionicons } from "@expo/vector-icons"
 
 const Display = () => {
   const { primary, side, bottom } = useImageStore()
+  const [shouldPlay, setShouldPlay] = useState<boolean>(false)
+  const [isPrimaryMute, setIsPrimaryMute] = useState<boolean>(false)
+  const [isSideMute, setIsSideMute] = useState<boolean>(false)
+  const [isBottomMute, setIsBottomMute] = useState<boolean>(false)
 
-  const renderMedia = (media: Media) => {
+  useFocusEffect(
+    useCallback(() => {
+      setShouldPlay(true)
+      return () => setShouldPlay(false)
+    }, [])
+  )
+
+  const renderMedia = (media: Media, type: string) => {
     if (media.uri) {
       if (media.type === "video") {
+        let isMute
+
+        switch (type) {
+          case "primary":
+            isMute = isPrimaryMute
+            break
+          case "side":
+            isMute = isSideMute
+            break
+          case "bottom":
+            isMute = isBottomMute
+            break
+        }
+
         return (
-          <Video
-            source={{ uri: media.uri }}
-            style={styles.media}
-            resizeMode={ResizeMode.COVER}
-            shouldPlay
-            isLooping
-            volume={0}
-          />
+          <Pressable
+            onPress={() => {
+              switch (type) {
+                case "primary":
+                  setIsPrimaryMute((prev) => !prev)
+                  break
+                case "side":
+                  setIsSideMute((prev) => !prev)
+                  break
+                case "bottom":
+                  setIsBottomMute((prev) => !prev)
+                  break
+              }
+            }}
+          >
+            <Video
+              source={{ uri: media.uri }}
+              style={styles.media}
+              resizeMode={ResizeMode.COVER}
+              shouldPlay={shouldPlay}
+              isLooping
+              volume={isMute ? 0 : 0.4}
+            />
+            {isMute && (
+              <Ionicons
+                name="volume-mute"
+                size={12}
+                style={{
+                  zIndex: 100,
+                  position: "absolute",
+                  color: "white",
+                  backgroundColor: "black",
+                  bottom: 0,
+                  right: 0,
+                  margin: 3,
+                  padding: 3,
+                }}
+              />
+            )}
+          </Pressable>
         )
       } else if (media.type === "image") {
         return (
@@ -41,20 +99,41 @@ const Display = () => {
   return (
     <>
       <StatusBar hidden={true} />
-      <Pressable
-        style={styles.container}
-        onLongPress={() => router.push("/pass")}
-      >
-        <View style={styles.header}>
-          <NativeImage
-            source={require("../assets/images/logo.png")}
-            style={{ height: "100%", objectFit: "contain", marginRight: "-4%" }}
-          />
+      <View style={styles.container}>
+        <Pressable
+          onLongPress={() => router.push("/pass")}
+          style={styles.header}
+        >
           <View
             style={{
-              position: "absolute",
-              right: 0,
-              width: 100,
+              paddingHorizontal: 10,
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: "bold",
+                fontSize: 12,
+                color: "white",
+                textTransform: "uppercase",
+              }}
+            >
+              Want to advertise?
+            </Text>
+            <Text
+              style={{
+                color: "white",
+                textTransform: "uppercase",
+                fontSize: 19,
+                marginTop: -5,
+                fontWeight: "bold",
+              }}
+            >
+              09176292457
+            </Text>
+          </View>
+          <View
+            style={{
+              paddingHorizontal: 10,
               alignItems: "center",
             }}
           >
@@ -83,15 +162,17 @@ const Display = () => {
               timezone={"Asia/Manila"}
             />
           </View>
+        </Pressable>
+        <View style={styles.upper}>
+          <Pressable style={styles.primary}>
+            {renderMedia(primary, "primary")}
+          </Pressable>
+          <View style={styles.side}>{renderMedia(side, "side")}</View>
         </View>
-        <View style={styles.upper} pointerEvents="none">
-          <View style={styles.primary}>{renderMedia(primary)}</View>
-          <View style={styles.side}>{renderMedia(side)}</View>
-        </View>
-        <View style={styles.bottom} pointerEvents="none">
-          {renderMedia(bottom)}
-        </View>
-      </Pressable>
+        <Pressable style={styles.bottom}>
+          {renderMedia(bottom, "bottom")}
+        </Pressable>
+      </View>
     </>
   )
 }
@@ -107,9 +188,10 @@ const styles = StyleSheet.create({
   header: {
     height: "8%",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingVertical: 10,
     backgroundColor: "black",
+    flexDirection: "row",
   },
   upper: {
     height: "77%",
